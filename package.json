@@ -1,0 +1,24 @@
+{
+  "name": "DarkLord",
+  "version": "0.1.0",
+  "description": "One Account",
+  "license": "MIT",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "devDependencies": {
+    "body-parser": "^1.6.5",
+    "express": "^4.8.5",
+    "gulp": "^3.8.8",
+    "gulp-jshint": "^1.8.5",
+    "jshint-stylish": "^1.0.0",
+    "jwt-simple": "^0.2.0",
+    "mongoose": "~3.8.18",
+    "mongoose-validator": "^1.0.2",
+    "morgan": "^1.3.0",
+    "passport": "^0.2.1",
+    "passport-local": "^1.0.0",
+    "passport-local-mongoose": "^1.0.0",
+    "q": "^1.0.1"
+  }
+}
