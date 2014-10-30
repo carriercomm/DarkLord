@@ -56,6 +56,10 @@ module.exports = function () {
 		})(req, res);
 	}
 
+	function refreshToken(req, res, next) {
+
+	}
+
 	function isAuthenticated(req, res, next) {
 		// If no token then not authenticated
 		if (!req.token) {
@@ -71,6 +75,13 @@ module.exports = function () {
 		} catch (e) {
 			return res.status(401).end();
 		}
+
+		// Check refresh date
+		var refreshDate = new Date(user.refresh);
+		if (refreshDate <= new Date()) {
+			return refreshToken(req, res, next);
+		}
+
 		// Check expiry date
 		var expiryDate = new Date(user.expires);
 		if (expiryDate <= new Date()) {
