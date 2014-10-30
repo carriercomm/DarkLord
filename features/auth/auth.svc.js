@@ -129,9 +129,7 @@ module.exports = function () {
 								deferred.badRequest(err);
 							} else {
 								// TODO: Send password has changed notifcation email
-								req.logIn(user, null, function () {
-									deferred.success();
-								});
+								deferred.success();
 							}
 						});
 					}
