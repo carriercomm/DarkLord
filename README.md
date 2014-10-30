@@ -1,9 +1,10 @@
 #DarkLord
-Stateless Authentication Server - token based authentication with JWTs
+Stateless Authentication Server - JWT based authentication
 
 ##Technology:
--NodeJS
--PassportJS
--MongoDB
--Mongoose ODM
--JWT Simple
+
+- [NodeJS](http://nodejs.org/)
+- [PassportJS](http://passportjs.org/)
+- [MongoDB](http://www.mongodb.org/)
+- [Mongoose](http://mongoosejs.com/)
+- [JWT Simple](https://www.npmjs.org/package/jwt-simple)
