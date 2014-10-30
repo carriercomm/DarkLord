@@ -25,7 +25,7 @@ module.exports = function (router) {
 
 	router.post('/register', authSvc.register);
 	router.post('/forgot', forgotPassword);
-	router.post('/reset/:token', resetPassword);
+	router.post('/reset', resetPassword);
 //	router.post('/verify/:token', verifyPassword);
 	router.put('/change', authSvc.isAuthenticated, changePassword);
 	router.post('/token', authSvc.authenticate);

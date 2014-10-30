@@ -126,7 +126,7 @@ module.exports = function () {
 	function resetPassword(req) {
 		var deferred = new Deferred();
 		userSvc
-			.getByPasswordToken(req.params.token)
+			.getByPasswordToken(req.body.token)
 			.then(function (result) {
 				var user = result.data;
 				user.setPassword(req.body.password, function (err, user) {
