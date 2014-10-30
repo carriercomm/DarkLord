@@ -77,3 +77,7 @@ Accepts a token and a password, the server then update the account password
       "token": "<forgotten-password-token>",
       "password": "654321"
     }
+
+####TODO
+** POST /token/refresh - refresh the token without provider username and password again
+** POST /verify/:token - verify the user owns the email address used to login
