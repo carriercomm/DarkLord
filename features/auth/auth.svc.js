@@ -33,28 +33,7 @@ module.exports = function () {
 			} else if (!user) {
 				res.status(401).end();
 			} else {
-				// When to refresh the token
-				var refreshDate = new Date();
-				refreshDate.setMinutes(refreshDate.getMinutes() + 15);
-
-				// When to force a new manual login
-				var expiryDate = new Date();
-				expiryDate.setDate(expiryDate.getDate() + 5);
-
-				// Encode the user information
-				var token = jwt.encode({
-					id: user._id,
-					email: user.email,
-					verified: user.verified,
-					active: user.active,
-					refresh: refreshDate,
-					expires: expiryDate
-				}, secret.value);
-				res.status(200).send({
-					token: token,
-					refresh: refreshDate,
-					expires: expiryDate
-				});
+				res.status(200).send(generateToken(user));
 			}
 		})(req, res);
 	}
@@ -75,12 +54,6 @@ module.exports = function () {
 			return res.status(401).end();
 		}
 
-		// Check refresh date
-		var refreshDate = new Date(user.refresh);
-		if (refreshDate <= new Date()) {
-			return refreshToken(req, res, next);
-		}
-
 		// Check expiry date
 		var expiryDate = new Date(user.expires);
 		if (expiryDate <= new Date()) {
@@ -97,6 +70,13 @@ module.exports = function () {
 			}, function () {
 				res.status(401).end();
 			});
+	}
+
+	function extendToken(req, res, next) {
+		if (!req.user) {
+			return res.status(401).end();
+		}
+		res.status(200).send(generateToken(req.user));
 	}
 
 	// Check validity of verify token and set verified flag
@@ -134,7 +114,7 @@ module.exports = function () {
 						deferred.internalServerError(err);
 					} else {
 						// TODO: Login link email which user clicks to login
-						deferred.success(user);
+						deferred.success();
 					}
 				});
 			}, deferred.reject);
@@ -193,6 +173,26 @@ module.exports = function () {
 		return deferred.promise;
 	}
 
+	function generateToken(user) {
+		// When to force a new manual login
+		var expiryDate = new Date();
+		expiryDate.setDate(expiryDate.getDate() + 5);
+
+		// Encode the user information
+		var token = jwt.encode({
+			id: user._id,
+			email: user.email,
+			verified: user.verified,
+			active: user.active,
+			expires: expiryDate
+		}, secret.value);
+
+		return {
+			token: token,
+			expiryDate: expiryDate
+		};
+	}
+
 	return {
 		register: register,
 		authenticate: authenticate,
@@ -200,6 +200,7 @@ module.exports = function () {
 		forgotPassword: forgotPassword,
 		resetPassword: resetPassword,
 		changePassword: changePassword,
-		verifyEmail: verifyEmail
+		verifyEmail: verifyEmail,
+		extendToken: extendToken
 	}
 };
