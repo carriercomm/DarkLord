@@ -30,7 +30,7 @@ Generate an authentication token.
     }
 
 ### POST /register
-Create an account and generate an authentication token.
+Create an account and generate an authentication token. Sets the verified flag to false and creates a verified token to email to the user.
 
 **Request:**
 
@@ -76,6 +76,15 @@ Accepts a token and a password, the server then update the account password
     {
       "token": "<forgotten-password-token>",
       "password": "654321"
+    }
+
+### POST /verify
+Accepts a token (sent to the user's email address), then sets the verified flag on the user to true and removes the verify token
+
+**Request:**
+
+    {
+      "token": "<verify-token>"
     }
 
 ####TODO
