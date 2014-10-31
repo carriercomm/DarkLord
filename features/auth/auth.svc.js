@@ -1,6 +1,6 @@
-var mongoose = require('mongoose');
 var passport = require('passport');
 var jwt = require('jwt-simple');
+var uuid = require('node-uuid');
 var Deferred = require('../../utils/deferred');
 var databaseSvc = require('../../utils/database.svc');
 var User = require('../../models/user');
@@ -12,12 +12,15 @@ module.exports = function () {
 
 	function register(req, res) {
 		var user = new User({
-			email: req.body.email
+			email: req.body.email,
+			verifyToken: uuid.v4()
 		});
 		User.register(user, req.body.password, function (err) {
 			if (err) {
 				res.status(400).send({ error: err });
 			} else {
+				// User created
+				// TODO: send verification email
 				authenticate(req, res);
 			}
 		});
@@ -54,10 +57,6 @@ module.exports = function () {
 				});
 			}
 		})(req, res);
-	}
-
-	function refreshToken(req, res, next) {
-
 	}
 
 	function isAuthenticated(req, res, next) {
@@ -100,6 +99,27 @@ module.exports = function () {
 			});
 	}
 
+	// Check validity of verify token and set verified flag
+	function verifyEmail(req) {
+		var deferred = new Deferred();
+		userSvc
+			.getByVerifyToken(req.body.token)
+			.then(function (result) {
+				var user = result.data;
+				user.verified = true;
+				user.verifyToken = undefined;
+				user.save(function (err, user) {
+					if (err) {
+						deferred.badRequest(err);
+					} else {
+						deferred.success();
+					}
+				});
+			}, deferred.reject);
+
+		return deferred.promise;
+	}
+
 	// Generate forgotten password token, then send link in email
 	function forgotPassword(req) {
 		var deferred = new Deferred();
@@ -107,7 +127,7 @@ module.exports = function () {
 			.getByEmail(req.body.email)
 			.then(function (result) {
 				var user = result.data;
-				user.forgotPasswordToken = new mongoose.Types.ObjectId;
+				user.forgotPasswordToken = uuid.v4();
 				user.forgotPasswordExpires = Date.now() + 3600000; // an hour from now
 				user.save(function (err, user) {
 					if (err) {
@@ -179,6 +199,7 @@ module.exports = function () {
 		isAuthenticated: isAuthenticated,
 		forgotPassword: forgotPassword,
 		resetPassword: resetPassword,
-		changePassword: changePassword
+		changePassword: changePassword,
+		verifyEmail: verifyEmail
 	}
 };

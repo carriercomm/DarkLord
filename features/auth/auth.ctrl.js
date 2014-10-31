@@ -23,10 +23,16 @@ module.exports = function (router) {
 			.then(responses.standard(res), responses.standard(res));
 	}
 
+	function verifyEmail(req, res) {
+		authSvc
+			.verifyEmail(req)
+			.then(responses.standard(res), responses.standard(res));
+	}
+
 	router.post('/register', authSvc.register);
 	router.post('/forgot', forgotPassword);
 	router.post('/reset', resetPassword);
-//	router.post('/verify/:token', verifyPassword);
+	router.post('/verify', verifyEmail);
 	router.put('/change', authSvc.isAuthenticated, changePassword);
 	router.post('/token', authSvc.authenticate);
 	//router.post('/token/refresh', authSvc.isAuthenticated, authSvc.refreshToken);

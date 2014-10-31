@@ -37,7 +37,25 @@ function getByPasswordToken(token) {
 	return deferred.promise;
 }
 
+function getByVerifyToken(token) {
+	var deferred = new Deferred();
+	User.findOne({
+		verifyToken: token
+	}, function (err, user) {
+		if (err) {
+			deferred.internalServerError(err);
+		} else if (!user) {
+			deferred.notFound();
+		} else {
+			deferred.success(user);
+		}
+	});
+
+	return deferred.promise;
+}
+
 module.exports = {
 	getByEmail: getByEmail,
-	getByPasswordToken: getByPasswordToken
+	getByPasswordToken: getByPasswordToken,
+	getByVerifyToken: getByVerifyToken
 };
