@@ -33,7 +33,7 @@ module.exports = function (router) {
 	router.post('/forgot', forgotPassword);
 	router.post('/reset', resetPassword);
 	router.post('/verify', verifyEmail);
-	router.put('/change', authSvc.isAuthenticated, changePassword);
 	router.post('/token', authSvc.authenticate);
 	//router.post('/token/refresh', authSvc.isAuthenticated, authSvc.refreshToken);
+	router.put('/change', authSvc.isAuthenticated, changePassword);
 };

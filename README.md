@@ -90,4 +90,4 @@ Accepts a token (sent to the user's email address), then sets the verified flag 
 ####TODO
 
 - **POST /token/refresh** - refresh the token without provider username and password again
-- **POST /verify/:token** - verify the user owns the email address used to login
+- **Emails** - the server should send emails to users
