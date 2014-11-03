@@ -1,6 +1,8 @@
 ﻿var Q = require('q');
 
 module.exports = function () {
+	'use strict';
+
 	var deferred = Q.defer();
 
 	function reject(status, data) {
@@ -33,5 +35,5 @@ module.exports = function () {
 		reject: deferred.reject,
 		resolve: deferred.resolve,
 		promise: deferred.promise
-	}
-}
+	};
+};

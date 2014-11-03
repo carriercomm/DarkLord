@@ -1,6 +1,5 @@
 var responses = require('../../utils/responses');
 var authSvc = require('./auth.svc')();
-var User = require('../../models/user');
 
 module.exports = function (router) {
 	'use strict';

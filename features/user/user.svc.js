@@ -2,6 +2,8 @@
 var User = require('../../models/user');
 
 function getByEmail(email) {
+	'use strict';
+
 	var deferred = new Deferred();
 	User.findOne({ email: email }, function (err, user) {
 		if (err) {
@@ -17,6 +19,8 @@ function getByEmail(email) {
 }
 
 function getByPasswordToken(token) {
+	'use strict';
+
 	var deferred = new Deferred();
 	User.findOne({
 		forgotPasswordToken: token
@@ -38,6 +42,8 @@ function getByPasswordToken(token) {
 }
 
 function getByVerifyToken(token) {
+	'use strict';
+
 	var deferred = new Deferred();
 	User.findOne({
 		verifyToken: token

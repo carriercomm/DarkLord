@@ -1,6 +1,7 @@
 ﻿var Deferred = require('./deferred');
 
 module.exports = function (Model) {
+	'use strict';
 
 	function save(data) {
 		var deferred = new Deferred();
@@ -15,9 +16,9 @@ module.exports = function (Model) {
 		 return deferred.promise;
 	}
 
-	function query(query) {
+	function query(queryObject) {
 		var deferred = new Deferred();
-		Model.find(query, function (err, models) {
+		Model.find(queryObject, function (err, models) {
 			if (err) {
 				deferred.internalServerError(err);
 			} else if (models.length === 0) {

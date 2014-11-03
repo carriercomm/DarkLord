@@ -27,7 +27,7 @@ module.exports = function () {
 	}
 
 	function authenticate(req, res) {
-		passport.authenticate('local', { session: false }, function (err, user, info) {
+		passport.authenticate('local', { session: false }, function (err, user) {
 			if (err) {
 				res.status(500).send(err);
 			} else if (!user) {
@@ -72,7 +72,7 @@ module.exports = function () {
 			});
 	}
 
-	function extendToken(req, res, next) {
+	function extendToken(req, res) {
 		if (!req.user) {
 			return res.status(401).end();
 		}
@@ -88,7 +88,7 @@ module.exports = function () {
 				var user = result.data;
 				user.verified = true;
 				user.verifyToken = undefined;
-				user.save(function (err, user) {
+				user.save(function (err) {
 					if (err) {
 						deferred.badRequest(err);
 					} else {
@@ -109,7 +109,7 @@ module.exports = function () {
 				var user = result.data;
 				user.forgotPasswordToken = uuid.v4();
 				user.forgotPasswordExpires = Date.now() + 3600000; // an hour from now
-				user.save(function (err, user) {
+				user.save(function (err) {
 					if (err) {
 						deferred.internalServerError(err);
 					} else {
@@ -135,7 +135,7 @@ module.exports = function () {
 					} else {
 						user.forgotPasswordToken = undefined;
 						user.forgotPasswordExpires = undefined;
-						user.save(function (err, user) {
+						user.save(function (err) {
 							if (err) {
 								deferred.badRequest(err);
 							} else {
@@ -202,5 +202,5 @@ module.exports = function () {
 		changePassword: changePassword,
 		verifyEmail: verifyEmail,
 		extendToken: extendToken
-	}
+	};
 };
