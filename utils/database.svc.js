@@ -5,7 +5,7 @@ module.exports = function (Model) {
 
 	function save(data) {
 		var deferred = new Deferred();
-		Model.findByIdAndUpdate(data._id, data, { upsert: true }, function (err, newModel) {
+		Model.findByIdAndUpdate(data._id, data, { runValidator: true }, function (err, newModel) {
 			if (err) {
 				deferred.internalServerError(err);
 			} else {
