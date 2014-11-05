@@ -20,7 +20,7 @@ module.exports = function (Model) {
 
 	function update(data) {
 		var deferred = new Deferred();
-		getById(data._id)
+		svc.findOne({ _id: data._id })
 			.then(function (result) {
 				var model = result.data;
 				var tmp = _.merge(model.toJSON(), data);
@@ -39,7 +39,7 @@ module.exports = function (Model) {
 		return deferred.promise;
 	}
 
-	function query(findOne, queryObject) {
+	function find(findOne, queryObject) {
 		var deferred = new Deferred();
 		Model.find(queryObject, function (err, models) {
 			if (err) {
@@ -55,27 +55,11 @@ module.exports = function (Model) {
 		return deferred.promise;
 	}
 
-	function getById(id) {
+	function remove(queryObject) {
 		var deferred = new Deferred();
-		Model.findById(id, function (err, model) {
+		Model.remove(queryObject, function (err) {
 			if (err) {
 				deferred.internalServerError(err);
-			} else if (!model) {
-				deferred.notFound();
-			} else {
-				deferred.success(model);
-			}
-		});
-		return deferred.promise;
-	}
-
-	function removeById(id) {
-		var deferred = new Deferred();
-		Model.findByIdAndRemove(id, function (err, model) {
-			if (err) {
-				deferred.internalServerError(err);
-			} else if (!model) {
-				deferred.notFound();
 			} else {
 				deferred.noContent();
 			}
@@ -84,12 +68,13 @@ module.exports = function (Model) {
 		return deferred.promise;
 	}
 
-	return {
+	var svc = {
 		create: create,
 		update: update,
-		getById: getById,
-		query: query.bind(this, false),
-		findOne: query.bind(this, true),
-		removeById: removeById
+		find: find.bind(this, false),
+		findOne: find.bind(this, true),
+		remove: remove
 	};
+
+	return svc;
 };

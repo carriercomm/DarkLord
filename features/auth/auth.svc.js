@@ -61,7 +61,7 @@ module.exports = function () {
 
 		// Token still in date, get user by id
 		databaseSvc(User)
-			.getById(user.id)
+			.findOne({ _id: user.id })
 			.then(function (result) {
 				var user = result.data;
 				req.user = user;
