@@ -12,6 +12,7 @@ app.all('*', function (req, res, next) {
 	'use strict';
 
 	req.token = req.headers.authorization;
+	// TODO: Update to check a white list of origins to prevent a free for all ;-)
 	res.header('Access-Control-Allow-Origin', req.headers.origin);
 	res.header('Access-Control-Allow-Headers', 'origin, content-type, accept');
 	res.header('Access-Control-Allow-Credentials', 'true');

@@ -4,7 +4,6 @@ var uuid = require('node-uuid');
 var Deferred = require('../../utils/deferred');
 var databaseSvc = require('../../utils/database.svc');
 var User = require('../../models/user');
-var userSvc = require('../user/user.svc');
 var secret = require('./secret.json');
 
 module.exports = function () {
@@ -82,8 +81,8 @@ module.exports = function () {
 	// Check validity of verify token and set verified flag
 	function verifyEmail(req) {
 		var deferred = new Deferred();
-		userSvc
-			.getByVerifyToken(req.body.token)
+		databaseSvc(User)
+			.findOne({ verifyToken: req.body.token })
 			.then(function (result) {
 				var user = result.data;
 				user.verified = true;
@@ -103,8 +102,8 @@ module.exports = function () {
 	// Generate forgotten password token, then send link in email
 	function forgotPassword(req) {
 		var deferred = new Deferred();
-		userSvc
-			.getByEmail(req.body.email)
+		databaseSvc(User)
+			.findOne({ email: req.body.email })
 			.then(function (result) {
 				var user = result.data;
 				user.forgotPasswordToken = uuid.v4();
@@ -125,26 +124,30 @@ module.exports = function () {
 	// Check validity of forgotten password token and set new password
 	function resetPassword(req) {
 		var deferred = new Deferred();
-		userSvc
-			.getByPasswordToken(req.body.token)
+		databaseSvc(User)
+			.findOne({ forgotPasswordToken: req.body.token })
 			.then(function (result) {
 				var user = result.data;
-				user.setPassword(req.body.password, function (err, user) {
-					if (err) {
-						deferred.badRequest(err);
-					} else {
-						user.forgotPasswordToken = undefined;
-						user.forgotPasswordExpires = undefined;
-						user.save(function (err) {
-							if (err) {
-								deferred.badRequest(err);
-							} else {
-								// TODO: Send password has changed notifcation email
-								deferred.success();
-							}
-						});
-					}
-				});
+				if (Date.now() > user.forgotPasswordExpires) {
+					deferred.gone();
+				} else {
+					user.setPassword(req.body.password, function (err, user) {
+						if (err) {
+							deferred.badRequest(err);
+						} else {
+							user.forgotPasswordToken = undefined;
+							user.forgotPasswordExpires = undefined;
+							user.save(function (err) {
+								if (err) {
+									deferred.badRequest(err);
+								} else {
+									// TODO: Send password has changed notifcation email
+									deferred.success();
+								}
+							});
+						}
+					});
+				}
 			}, deferred.reject);
 
 		return deferred.promise;

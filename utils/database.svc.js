@@ -1,11 +1,13 @@
-﻿var Deferred = require('./deferred');
+﻿var _ = require('lodash');
+var Deferred = require('./deferred');
 
 module.exports = function (Model) {
 	'use strict';
 
-	function save(data) {
+	function create(data) {
 		var deferred = new Deferred();
-		Model.findByIdAndUpdate(data._id, data, { runValidator: true }, function (err, newModel) {
+		var model = new Model(data);
+		model.save(function (err, newModel) {
 			if (err) {
 				deferred.internalServerError(err);
 			} else {
@@ -13,10 +15,31 @@ module.exports = function (Model) {
 			}
 		});
 
-		 return deferred.promise;
+		return deferred.promise;
 	}
 
-	function query(queryObject) {
+	function update(data) {
+		var deferred = new Deferred();
+		getById(data._id)
+			.then(function (result) {
+				var model = result.data;
+				var tmp = _.merge(model.toJSON(), data);
+				_.extend(model, tmp);
+				model.save(function (err, updatedModel) {
+					if (err) {
+						deferred.internalServerError(err);
+					} else {
+						deferred.success(updatedModel);
+					}
+				});
+			}, function (result) {
+				deferred.reject(result.status, result.data);
+			});
+
+		return deferred.promise;
+	}
+
+	function query(findOne, queryObject) {
 		var deferred = new Deferred();
 		Model.find(queryObject, function (err, models) {
 			if (err) {
@@ -24,7 +47,8 @@ module.exports = function (Model) {
 			} else if (models.length === 0) {
 				deferred.notFound();
 			} else {
-				deferred.success(models);
+				var result = findOne ? models[0] : models;
+				deferred.success(result);
 			}
 		});
 
@@ -42,7 +66,7 @@ module.exports = function (Model) {
 				deferred.success(model);
 			}
 		});
-		 return deferred.promise;
+		return deferred.promise;
 	}
 
 	function removeById(id) {
@@ -57,13 +81,15 @@ module.exports = function (Model) {
 			}
 		});
 
-		 return deferred.promise;
+		return deferred.promise;
 	}
 
 	return {
-		save: save,
-		query: query,
+		create: create,
+		update: update,
 		getById: getById,
+		query: query.bind(this, false),
+		findOne: query.bind(this, true),
 		removeById: removeById
 	};
 };
