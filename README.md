@@ -84,8 +84,8 @@ Checks to see if the request is already authenticated, and if so responds with a
 
 **Request:**
 
-		Headers:
-		Authorization: "<authentication-token>"
+	Headers:
+	Authorization: "<authentication-token>"
 
 
 ### Your own solution required for
