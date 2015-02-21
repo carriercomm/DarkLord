@@ -1,14 +1,6 @@
 #DarkLord
 Stateless Authentication Server - JWT based authentication
 
-##Technology:
-
-- [NodeJS](http://nodejs.org/)
-- [PassportJS](http://passportjs.org/)
-- [MongoDB](http://www.mongodb.org/)
-- [Mongoose](http://mongoosejs.com/)
-- [JWT Simple](https://www.npmjs.org/package/jwt-simple)
-
 ## API
 
 ### POST /token
@@ -48,7 +40,7 @@ Create an account and generate an authentication token. Sets the verified flag t
     }
 
 ### PUT /change
-Change the password on the account. 
+Change the password on the account.
 
 **Request:**
 
@@ -87,7 +79,22 @@ Accepts a token (sent to the user's email address), then sets the verified flag 
       "token": "<verify-token>"
     }
 
-####TODO
+### POST /token/extend
+Checks to see if the request is already authenticated, and if so responds with a new auth token that has an extended expiry date
 
-- **POST /token/refresh** - refresh the token without provider username and password again
+**Request:**
+
+		Headers:
+		Authorization: "<authentication-token>"
+
+
+### Your own solution required for
+
 - **Emails** - the server should send emails to users
+
+### Technology Used
+- [NodeJS](http://nodejs.org/)
+- [PassportJS](http://passportjs.org/)
+- [MongoDB](http://www.mongodb.org/)
+- [Mongoose](http://mongoosejs.com/)
+- [JWT Simple](https://www.npmjs.org/package/jwt-simple)
