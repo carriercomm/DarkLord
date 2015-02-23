@@ -4,7 +4,6 @@ var uuid = require('node-uuid');
 var Deferred = require('../../utils/deferred');
 var databaseSvc = require('../../utils/database.svc');
 var User = require('../../models/user');
-var secret = require('./secret.json');
 
 module.exports = function () {
 	'use strict';
@@ -48,7 +47,7 @@ module.exports = function () {
 		// Decode the user information	
 		var user;
 		try {
-			user = jwt.decode(req.token, secret.value);
+			user = jwt.decode(req.token, process.env.JWTSECRET);
 		} catch (e) {
 			return res.status(401).end();
 		}
@@ -187,7 +186,7 @@ module.exports = function () {
 			verified: user.verified,
 			active: user.active,
 			expires: expiryDate
-		}, secret.value);
+		}, process.env.JWTSECRET);
 
 		return {
 			token: token,
