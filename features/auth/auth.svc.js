@@ -47,7 +47,7 @@ module.exports = function () {
 		// Decode the user information	
 		var user;
 		try {
-			user = jwt.decode(req.token, process.env.JWTSECRET);
+			user = jwt.decode(req.token, process.env.JWT_SECRET);
 		} catch (e) {
 			return res.status(401).end();
 		}
@@ -186,7 +186,7 @@ module.exports = function () {
 			verified: user.verified,
 			active: user.active,
 			expires: expiryDate
-		}, process.env.JWTSECRET);
+		}, process.env.JWT_SECRET);
 
 		return {
 			token: token,
