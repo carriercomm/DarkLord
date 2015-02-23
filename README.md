@@ -3,7 +3,7 @@ Stateless Authentication Server - JWT based authentication
 
 ## API
 
-To create a JWT token you'll need to set a secret to the `JWTSECRET` env variable
+To create a JWT token you'll need to set a secret to the `JWT_SECRET` env variable
 
 ### POST /token
 Generate an authentication token.
