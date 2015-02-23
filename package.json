@@ -4,16 +4,17 @@
   "description": "One Account",
   "license": "MIT",
   "scripts": {
+    "lint": "jshint . --exclude-path=.gitignore",
     "start": "node app.js"
   },
   "dependencies": {
     "body-parser": "^1.6.5",
     "express": "^4.8.5",
     "jwt-simple": "^0.2.0",
-		"lodash": "^2.4.1",
+    "lodash": "^2.4.1",
     "mongoose": "~3.8.18",
     "mongoose-validator": "^1.0.2",
-		"morgan": "^1.3.0",
+    "morgan": "^1.3.0",
     "node-uuid": "^1.4.1",
     "passport": "^0.2.1",
     "passport-local": "^1.0.0",
@@ -21,8 +22,6 @@
     "q": "^1.0.1"
   },
   "devDependencies": {
-    "gulp": "^3.8.8",
-    "gulp-jshint": "^1.8.5",
-    "jshint-stylish": "^1.0.0"    
+    "jshint": "^2.6.0"
   }
 }
