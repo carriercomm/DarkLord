@@ -70,14 +70,9 @@ Accepts a token and a password, the server then update the account password
       "password": "654321"
     }
 
-### GET /verify
+### GET /verify/:token
 Accepts a token (sent to the user's email address), then sets the verified flag on the user to true and removes the verify token
 
-**Request:**
-
-    {
-      "token": "<verify-token>"
-    }
 
 ### POST /token/extend
 Checks to see if the request is already authenticated, and if so responds with a new auth token that has an extended expiry date
