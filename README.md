@@ -70,7 +70,7 @@ Accepts a token and a password, the server then update the account password
       "password": "654321"
     }
 
-### POST /verify
+### GET /verify
 Accepts a token (sent to the user's email address), then sets the verified flag on the user to true and removes the verify token
 
 **Request:**

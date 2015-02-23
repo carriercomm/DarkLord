@@ -63,8 +63,7 @@ module.exports = function () {
 		databaseSvc(User)
 			.findOne({ _id: user.id })
 			.then(function (result) {
-				var user = result.data;
-				req.user = user;
+				req.user = result.data;
 				next();
 			}, function () {
 				res.status(401).end();
@@ -82,7 +81,7 @@ module.exports = function () {
 	function verifyEmail(req) {
 		var deferred = new Deferred();
 		databaseSvc(User)
-			.findOne({ verifyToken: req.body.token })
+			.findOne({ verifyToken: req.params.token })
 			.then(function (result) {
 				var user = result.data;
 				user.verified = true;
