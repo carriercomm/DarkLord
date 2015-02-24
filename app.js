@@ -1,5 +1,4 @@
 var express = require('express');
-var router = express.Router();
 var mongoose = require('mongoose');
 var passport = require('passport');
 var morgan = require('morgan');
@@ -37,12 +36,11 @@ app.use(bodyParser.json());
 app.use(passport.initialize());
 
 // Routes
-require('./features/auth/auth.ctrl')({
-	router: router,
+var router = require('./features/auth/auth.ctrl')({
 	databaseSvc: databaseSvc,
 	User: User,
 	secret: process.env.JWT_SECRET
-});
+}).router();
 app.use('/', router);
 
 // Catch 404 and forward to error handler
