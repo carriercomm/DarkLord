@@ -3,8 +3,10 @@ var jwt = require('jwt-simple');
 var uuid = require('node-uuid');
 var Deferred = require('../../utils/deferred');
 
-module.exports = function (databaseSvc, User) {
+module.exports = function (imports) {
 	'use strict';
+	var databaseSvc = imports.databaseSvc;
+	var User = imports.User;
 
 	function register(req, res) {
 		var user = new User({
@@ -45,7 +47,7 @@ module.exports = function (databaseSvc, User) {
 		// Decode the user information	
 		var user;
 		try {
-			user = jwt.decode(req.token, process.env.JWT_SECRET);
+			user = jwt.decode(req.token, imports.secret);
 		} catch (e) {
 			return res.status(401).end();
 		}
@@ -184,7 +186,7 @@ module.exports = function (databaseSvc, User) {
 			verified: user.verified,
 			active: user.active,
 			expires: expiryDate
-		}, process.env.JWT_SECRET);
+		}, imports.secret);
 
 		return {
 			token: token,
