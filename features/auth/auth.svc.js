@@ -186,7 +186,7 @@ module.exports = function (imports) {
 			verified: user.verified,
 			active: user.active,
 			expires: expiryDate
-		}, process.env.JWT_SECRET);
+		}, imports.secret);
 
 		return {
 			token: token,
