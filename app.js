@@ -5,6 +5,9 @@ var passport = require('passport');
 var morgan = require('morgan');
 var bodyParser = require('body-parser');
 
+var databaseSvc = require('./utils/database.svc');
+var User = require('./models/user');
+
 var app = express();
 
 // CORS
@@ -34,7 +37,7 @@ app.use(bodyParser.json());
 app.use(passport.initialize());
 
 // Routes
-require('./features/auth/auth.ctrl')(router);
+require('./features/auth/auth.ctrl')(router, databaseSvc, User);
 app.use('/', router);
 
 // Catch 404 and forward to error handler
