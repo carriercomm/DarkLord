@@ -1,8 +1,9 @@
 var responses = require('../../utils/responses');
 
-module.exports = function (router, databaseSvc, User) {
+module.exports = function (imports) {
 	'use strict';
-	var authSvc = require('./auth.svc')(databaseSvc, User);
+	var router = imports.router;
+	var authSvc = require('./auth.svc')(imports);
 
 	function forgotPassword(req, res) {
 		authSvc

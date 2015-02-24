@@ -37,7 +37,11 @@ app.use(bodyParser.json());
 app.use(passport.initialize());
 
 // Routes
-require('./features/auth/auth.ctrl')(router, databaseSvc, User);
+require('./features/auth/auth.ctrl')({
+	router: router,
+	databaseSvc: databaseSvc,
+	User: User,
+});
 app.use('/', router);
 
 // Catch 404 and forward to error handler
