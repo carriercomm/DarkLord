@@ -2,10 +2,8 @@ var passport = require('passport');
 var jwt = require('jwt-simple');
 var uuid = require('node-uuid');
 var Deferred = require('../../utils/deferred');
-var databaseSvc = require('../../utils/database.svc');
-var User = require('../../models/user');
 
-module.exports = function () {
+module.exports = function (databaseSvc, User) {
 	'use strict';
 
 	function register(req, res) {
