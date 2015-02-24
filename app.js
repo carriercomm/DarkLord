@@ -41,7 +41,7 @@ require('./features/auth/auth.ctrl')({
 	router: router,
 	databaseSvc: databaseSvc,
 	User: User,
-	secret: process.env.JWT_SECRET,
+	secret: process.env.JWT_SECRET
 });
 app.use('/', router);
 
