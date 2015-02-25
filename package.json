@@ -1,6 +1,6 @@
 {
   "name": "darklord",
-  "version": "1.0.2",
+  "version": "1.0.5",
   "author": "Gregory Pratt <gregory.pratt@me.com> (http://grumpywizards.com)",
   "description": "Stateless JWT based authentication",
   "license": "MIT",
@@ -11,13 +11,16 @@
   "bugs": {
     "url": "https://github.com/GrumpyWizards/DarkLord/issues"
   },
-  "files": ["src"],
+  "files": [
+    "src"
+  ],
   "main": "./src/darklord.js",
   "scripts": {
     "lint": "jshint . --exclude-path=.gitignore"
   },
   "dependencies": {
     "body-parser": "^1.6.5",
+    "deferred-http-statuses": "^1.0.2",
     "express": "^4.8.5",
     "jwt-simple": "^0.2.0",
     "lodash": "^2.4.1",

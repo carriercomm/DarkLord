@@ -1,7 +1,7 @@
 var passport = require('passport');
 var jwt = require('jwt-simple');
 var uuid = require('node-uuid');
-var Deferred = require('./utils/deferred');
+var Deferred = require('deferred-http-statuses');
 
 module.exports = function (opts) {
 	'use strict';
@@ -10,7 +10,7 @@ module.exports = function (opts) {
 	 * Defaults
 	 */
 	var User = 					opts.user || require('./models/user');
-	var databaseSvc = 	opts.databaseSvc || require('./utils/database.svc.mongoose.js')(User);
+	var databaseSvc = 	opts.databaseSvc || require('./database.svc.mongoose.js')(User);
 	var secret = 				opts.secret || process.env.JWT_SECRET;
 	if (!opts.user) {
 		// If no user provided create passport strategy
