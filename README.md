@@ -1,4 +1,4 @@
-##DarkLord - JWT based stateless authentication
+## DarkLord - JWT based stateless authentication
 
 DarkLord is designed to work with Express and provides a configurable authentication solution. It will provide you with a set of API end points straight out of the box. It also has a default User model and Mongo connectivity, however you can easily provide your own.
 
@@ -12,7 +12,7 @@ Next:
 
 This is the simplest way of getting DarkLord up and running.
 
-###Options
+### Options
 
     var darklord = require('darklord')({
       secret: <secret string>,
