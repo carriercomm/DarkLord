@@ -42,7 +42,7 @@ passport.deserializeUser(User.deserializeUser());
 var router = express.Router();
 app.use('/', router);
 
-require('DarkLord')({
+require('./src/darklord.js')({
 	router: router,
 	databaseSvc: require('./src/database.svc.mongoose.js'),
 	User: User,
