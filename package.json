@@ -1,8 +1,8 @@
 {
-  "name": "DarkLord",
+  "name": "darklord",
   "version": "1.0.0",
   "author": "Gregory Pratt <gregory.pratt@me.com> (http://grumpywizards.com)",
-  "description": "One Account",
+  "description": "Stateless JWT based authentication server",
   "license": "MIT",
   "repository": {
     "type": "git",
