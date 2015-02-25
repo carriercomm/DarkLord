@@ -32,12 +32,6 @@ app.use(bodyParser.json());
 // Passport config
 app.use(passport.initialize());
 
-// User and Passport config
-var User = require('./src/models/user');
-passport.use(User.createStrategy());
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
-
 // Routes
 var router = express.Router();
 app.use('/', router);

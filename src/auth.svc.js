@@ -12,6 +12,12 @@ module.exports = function (opts) {
 	var User = 					opts.user || require('./models/user');
 	var databaseSvc = 	opts.databaseSvc || require('./utils/database.svc.mongoose.js')(User);
 	var secret = 				opts.secret || process.env.JWT_SECRET;
+	if (!opts.user) {
+		// If no user provided create passport strategy
+		passport.use(User.createStrategy());
+		passport.serializeUser(User.serializeUser());
+		passport.deserializeUser(User.deserializeUser());
+	}
 
 	function register(req, res) {
 		var user = new User({

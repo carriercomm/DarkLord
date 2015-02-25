@@ -2,7 +2,7 @@
   "name": "darklord",
   "version": "1.0.0",
   "author": "Gregory Pratt <gregory.pratt@me.com> (http://grumpywizards.com)",
-  "description": "Stateless JWT based authentication server",
+  "description": "Stateless JWT based authentication",
   "license": "MIT",
   "repository": {
     "type": "git",
