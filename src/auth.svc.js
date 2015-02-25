@@ -9,8 +9,9 @@ module.exports = function (opts) {
 	/*
 	 * Defaults
 	 */
-	var User = opts.User || require('./models/user');
-	var databaseSvc = opts.databaseSvc || require('./utils/database.svc.mongoose.js')(User);
+	var User = 					opts.user || require('./models/user');
+	var databaseSvc = 	opts.databaseSvc || require('./utils/database.svc.mongoose.js')(User);
+	var secret = 				opts.secret || process.env.JWT_SECRET;
 
 	function register(req, res) {
 		var user = new User({
@@ -51,7 +52,7 @@ module.exports = function (opts) {
 		// Decode the user information	
 		var user;
 		try {
-			user = jwt.decode(req.token, opts.secret);
+			user = jwt.decode(req.token, secret);
 		} catch (e) {
 			return res.status(401).end();
 		}
@@ -190,7 +191,7 @@ module.exports = function (opts) {
 			verified: user.verified,
 			active: user.active,
 			expires: expiryDate
-		}, opts.secret);
+		}, secret);
 
 		return {
 			token: token,
