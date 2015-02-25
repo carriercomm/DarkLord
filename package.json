@@ -1,11 +1,20 @@
 {
   "name": "DarkLord",
-  "version": "0.1.0",
+  "version": "1.0.0",
+  "author": "Gregory Pratt <gregory.pratt@me.com> (http://grumpywizards.com)",
   "description": "One Account",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/GrumpyWizards/DarkLord.git"
+  },
+  "bugs": {
+    "url": "https://github.com/GrumpyWizards/DarkLord/issues"
+  },
+  "files": ["src"],
+  "main": "./src/darklord.js",
   "scripts": {
-    "lint": "jshint . --exclude-path=.gitignore",
-    "start": "node app.js"
+    "lint": "jshint . --exclude-path=.gitignore"
   },
   "dependencies": {
     "body-parser": "^1.6.5",

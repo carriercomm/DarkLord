@@ -1,12 +1,16 @@
 var passport = require('passport');
 var jwt = require('jwt-simple');
 var uuid = require('node-uuid');
-var Deferred = require('../../utils/deferred');
+var Deferred = require('./utils/deferred');
 
-module.exports = function (imports) {
+module.exports = function (opts) {
 	'use strict';
-	var databaseSvc = imports.databaseSvc;
-	var User = imports.User;
+
+	/*
+	 * Defaults
+	 */
+	var User = opts.User || require('./models/user');
+	var databaseSvc = opts.databaseSvc || require('./utils/database.svc.mongoose.js')(User);
 
 	function register(req, res) {
 		var user = new User({
@@ -47,7 +51,7 @@ module.exports = function (imports) {
 		// Decode the user information	
 		var user;
 		try {
-			user = jwt.decode(req.token, imports.secret);
+			user = jwt.decode(req.token, opts.secret);
 		} catch (e) {
 			return res.status(401).end();
 		}
@@ -59,7 +63,7 @@ module.exports = function (imports) {
 		}
 
 		// Token still in date, get user by id
-		databaseSvc(User)
+		databaseSvc
 			.findOne({ _id: user.id })
 			.then(function (result) {
 				req.user = result.data;
@@ -79,7 +83,7 @@ module.exports = function (imports) {
 	// Check validity of verify token and set verified flag
 	function verifyEmail(req) {
 		var deferred = new Deferred();
-		databaseSvc(User)
+		databaseSvc
 			.findOne({ verifyToken: req.params.token })
 			.then(function (result) {
 				var user = result.data;
@@ -100,7 +104,7 @@ module.exports = function (imports) {
 	// Generate forgotten password token, then send link in email
 	function forgotPassword(req) {
 		var deferred = new Deferred();
-		databaseSvc(User)
+		databaseSvc
 			.findOne({ email: req.body.email })
 			.then(function (result) {
 				var user = result.data;
@@ -122,7 +126,7 @@ module.exports = function (imports) {
 	// Check validity of forgotten password token and set new password
 	function resetPassword(req) {
 		var deferred = new Deferred();
-		databaseSvc(User)
+		databaseSvc
 			.findOne({ forgotPasswordToken: req.body.token })
 			.then(function (result) {
 				var user = result.data;
@@ -186,7 +190,7 @@ module.exports = function (imports) {
 			verified: user.verified,
 			active: user.active,
 			expires: expiryDate
-		}, imports.secret);
+		}, opts.secret);
 
 		return {
 			token: token,

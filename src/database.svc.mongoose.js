@@ -1,5 +1,5 @@
 ﻿var _ = require('lodash');
-var Deferred = require('./deferred');
+var Deferred = require('./utils/deferred');
 
 module.exports = function (Model) {
 	'use strict';

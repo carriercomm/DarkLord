@@ -1,4 +1,4 @@
-var emailValidator = require('./validators/email.validator');
+var emailValidator = require('./validators/email.validator.js');
 var mongoose = require('mongoose');
 var passportLocalMongoose = require('passport-local-mongoose');
 var Schema = mongoose.Schema;

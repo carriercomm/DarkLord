@@ -4,9 +4,6 @@ var passport = require('passport');
 var morgan = require('morgan');
 var bodyParser = require('body-parser');
 
-var databaseSvc = require('./utils/database.svc');
-var User = require('./models/user');
-
 var app = express();
 
 // CORS
@@ -35,13 +32,22 @@ app.use(bodyParser.json());
 // Passport config
 app.use(passport.initialize());
 
+// User and Passport config
+var User = require('./src/models/user');
+passport.use(User.createStrategy());
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
 // Routes
-var router = require('./features/auth/auth.ctrl')({
-	databaseSvc: databaseSvc,
-	User: User,
-	secret: process.env.JWT_SECRET
-}).router();
+var router = express.Router();
 app.use('/', router);
+
+require('DarkLord')({
+	router: router,
+	databaseSvc: require('./src/database.svc.mongoose.js'),
+	User: User,
+	secret: process.env.JWT_SECRET || '85705984723056481905789579841057457023894570128572908173548590167438947918057893215791305728395767138075190574315674816510948'
+});
 
 // Catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -61,13 +67,8 @@ app.use(function (err, req, res) {
 	res.status(err.status || 500).end();
 });
 
-// User and Passport config
-passport.use(User.createStrategy());
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
-
 // Mongoose connection string
-mongoose.connect('mongodb://localhost/darklord');
+mongoose.connect('mongodb://localhost/DarkLord');
 
 // Start server
 app.set('port', process.env.PORT || 3000);
