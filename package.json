@@ -16,6 +16,7 @@
   ],
   "main": "./src/darklord.js",
   "scripts": {
+    "start": "node ./app.js",
     "lint": "jshint . --exclude-path=.gitignore"
   },
   "dependencies": {
