@@ -12,30 +12,29 @@ module.exports = function (opts) {
 	var User = 					opts.user || require('./models/user');
 	var databaseSvc = 	opts.databaseSvc || require('./database.svc.mongoose.js')(User);
 	var secret = 				opts.secret || process.env.JWT_SECRET;
-	if (!opts.user) {
-		// If no user provided create passport strategy
-		passport.use(User.createStrategy());
-		passport.serializeUser(User.serializeUser());
-		passport.deserializeUser(User.deserializeUser());
-	}
 
-	function register(req, res) {
-		var user = new User({
+	// let's assume passport is used always
+	passport.use(User.createStrategy());
+	passport.serializeUser(User.serializeUser());
+	passport.deserializeUser(User.deserializeUser());
+
+	function register(req, res, next) {
+		User.register({
 			email: req.body.email,
-			verifyToken: uuid.v4()
-		});
-		User.register(user, req.body.password, function (err) {
+			verifyToken: uuid.v4(),
+		}, req.body.password, function (err) {
+			console.log('ok', err);
 			if (err) {
 				res.status(400).send({ error: err });
 			} else {
 				// User created
 				// TODO: send verification email
-				authenticate(req, res);
+				authenticate(req, res, next);
 			}
 		});
 	}
 
-	function authenticate(req, res) {
+	function authenticate(req, res, next) {
 		passport.authenticate('local', { session: false }, function (err, user) {
 			if (err) {
 				res.status(500).send(err);
@@ -44,7 +43,7 @@ module.exports = function (opts) {
 			} else {
 				res.status(200).send(generateToken(user));
 			}
-		})(req, res);
+		})(req, res, next);
 	}
 
 	function isAuthenticated(req, res, next) {
