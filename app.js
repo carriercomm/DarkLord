@@ -36,9 +36,10 @@ app.use(passport.initialize());
 var router = express.Router();
 app.use('/', router);
 
+var User = require('./src/models/user.js');
 require('./src/darklord.js')({
 	router: router,
-	databaseSvc: require('./src/database.svc.mongoose.js'),
+	databaseSvc: require('./src/database.svc.mongoose.js')(User),
 	user: User,
 	secret: process.env.JWT_SECRET || '85705984723056481905789579841057457023894570128572908173548590167438947918057893215791305728395767138075190574315674816510948'
 });
