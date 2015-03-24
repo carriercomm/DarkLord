@@ -1,3 +1,4 @@
+var Cookies = require('cookies');
 var passport = require('passport');
 var jwt = require('jwt-simple');
 var uuid = require('node-uuid');
@@ -9,9 +10,11 @@ module.exports = function (opts) {
 	/*
 	 * Defaults
 	 */
-	var User = 					opts.user || require('./models/user');
-	var databaseSvc = 	opts.databaseSvc || require('./database.svc.mongoose.js')(User);
-	var secret = 				opts.secret || process.env.JWT_SECRET;
+	var User = opts.user || require('./models/user');
+	var databaseSvc = opts.databaseSvc || require('./database.svc.mongoose.js')(User);
+	var secret = opts.secret || process.env.JWT_SECRET;
+	var activateCookie = opts.cookie || false;
+	var cookiekKeys = require("keygrip")([secret]);
 
 	// let's assume passport is used always
 	passport.use(User.createStrategy());
@@ -21,7 +24,7 @@ module.exports = function (opts) {
 	function register(req, res, next) {
 		User.register({
 			email: req.body.email,
-			verifyToken: uuid.v4(),
+			verifyToken: uuid.v4()
 		}, req.body.password, function (err) {
 			console.log('ok', err);
 			if (err) {
@@ -41,49 +44,66 @@ module.exports = function (opts) {
 			} else if (!user) {
 				res.status(401).end();
 			} else {
-				res.status(200).send(generateToken(user));
+				res.status(200).send(generateToken(req, res, user));
 			}
 		})(req, res, next);
 	}
 
-	function isAuthenticated(req, res, next) {
+	function hasAccess(req, res) {
+		var deferred = new Deferred();
+		// Get token from authorization header or cookie fallback
+		var cookies = new Cookies(req, res, cookiekKeys);
+		req.token = req.headers.authorization || cookies.get('darklord', { signed: true });
+
 		// If no token then not authenticated
 		if (!req.token) {
-			return res.status(401).end();
+			deferred.reject();
 		} else {
 			req.token = req.token.replace(/^bearer /i, '');
-		}
 
-		// Decode the user information	
-		var user;
-		try {
-			user = jwt.decode(req.token, secret);
-		} catch (e) {
-			return res.status(401).end();
-		}
+			// Decode the user information
+			var user;
+			try {
+				user = jwt.decode(req.token, secret);
 
-		// Check expiry date
-		var expiryDate = new Date(user.expires);
-		if (expiryDate <= new Date()) {
-			return res.status(401).end();
-		}
+				// Check expiry date
+				var expiryDate = new Date(user.expires);
+				if (expiryDate <= new Date()) {
+					deferred.reject();
+				} else {
 
-		// Token still in date, get user by id
-		databaseSvc
-			.findOne({ _id: user.id })
-			.then(function (result) {
-				req.user = result.data;
-				next();
-			}, function () {
-				res.status(401).end();
-			});
+					// Token still in date, get user by id
+					databaseSvc
+						.findOne({ _id: user.id })
+						.then(function (result) {
+							req.user = result.data;
+							deferred.resolve();
+						}, function () {
+							deferred.reject();
+						});
+				}
+			} catch (e) {
+				deferred.reject();
+			}
+		}
+		return deferred.promise;
+	}
+
+	function isAuthenticated(req, res, next) {
+		hasAccess(req, res).then(function () {
+			// Has access and req.user has been set
+			next();
+		}, function () {
+			// Does not have access
+			res.status(401).end();
+		});
 	}
 
 	function extendToken(req, res) {
 		if (!req.user) {
 			return res.status(401).end();
 		}
-		res.status(200).send(generateToken(req.user));
+		res.status(200).send(generateToken(req, res, req.user));
 	}
 
 	// Check validity of verify token and set verified flag
@@ -184,7 +204,7 @@ module.exports = function (opts) {
 		return deferred.promise;
 	}
 
-	function generateToken(user) {
+	function generateToken(req, res, user) {
 		// When to force a new manual login
 		var expiryDate = new Date();
 		expiryDate.setDate(expiryDate.getDate() + 5);
@@ -198,6 +218,15 @@ module.exports = function (opts) {
 			expires: expiryDate
 		}, secret);
 
+		if (activateCookie) {
+			// Store the token in a cookie
+			var cookies = new Cookies(req, res, cookiekKeys);
+			cookies.set('darklord', token, {
+				expires: expiryDate,
+				signed: true
+			});
+		}
+
 		return {
 			token: token,
 			expiryDate: expiryDate
@@ -207,6 +236,7 @@ module.exports = function (opts) {
 	return {
 		register: register,
 		authenticate: authenticate,
+		hasAccess: hasAccess,
 		isAuthenticated: isAuthenticated,
 		forgotPassword: forgotPassword,
 		resetPassword: resetPassword,

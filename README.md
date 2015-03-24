@@ -16,12 +16,15 @@ This is the simplest way of getting DarkLord up and running.
 
     var darklord = require('darklord')({
       secret: <secret string>,
+      cookie: <turn on token cookie>,
       user: <passport based user model>,
       databaseSvc: <database logic controller>,
       router: <express router>
     });
 
 **secret** (*optional*) - provide the JWT generator a secret key that it will use to encrypt and decrypt auth tokens. Leave it blank and it will use an environment variable called `JWT_SECRET`
+
+**cookie** (*optional*) - turn token cookie on. The token will be stored in a signed cookie based on your *secret*. Useful if you want to use DarkLord for normal webpages as well as APIs.
 
 **user** (*optional*) - you can setup your own passport initialised User model, the default one is wrapped up as a passport mongoose model
 
@@ -138,3 +141,5 @@ Checks to see if the request is already authenticated, and if so responds with a
 - [MongoDB](http://www.mongodb.org/)
 - [Mongoose](http://mongoosejs.com/)
 - [JWT Simple](https://www.npmjs.org/package/jwt-simple)
+- [Cookies](https://www.npmjs.com/package/cookies)
+- [KeyGrip](https://www.npmjs.com/package/keygrip)
