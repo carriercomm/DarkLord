@@ -2,7 +2,7 @@ var Cookies = require('cookies');
 var passport = require('passport');
 var jwt = require('jwt-simple');
 var uuid = require('node-uuid');
-var Deferred = require('deferred-http-statuses');
+var deferred = require('deferred-http-statuses');
 
 module.exports = function (opts) {
 	'use strict';
@@ -16,7 +16,7 @@ module.exports = function (opts) {
 	var activateCookie = opts.cookie || false;
 	var cookiekKeys = require("keygrip")([secret]);
 
-	// let's assume passport is used always
+	// Let's assume passport is used always
 	passport.use(User.createStrategy());
 	passport.serializeUser(User.serializeUser());
 	passport.deserializeUser(User.deserializeUser());
@@ -50,43 +50,43 @@ module.exports = function (opts) {
 	}
 
 	function hasAccess(req, res) {
-		var deferred = new Deferred();
-		// Get token from authorization header or cookie fallback
-		var cookies = new Cookies(req, res, cookiekKeys);
-		req.token = req.headers.authorization || cookies.get('darklord', { signed: true });
+		return deferred(function (resolve, reject, promise) {
+			// Get token from authorization header or cookie fallback
+			var cookies = new Cookies(req, res, cookiekKeys);
+			req.token = req.headers.authorization || cookies.get('darklord', { signed: true });
 
-		// If no token then not authenticated
-		if (!req.token) {
-			deferred.reject();
-		} else {
-			req.token = req.token.replace(/^bearer /i, '');
+			// If no token then not authenticated
+			if (!req.token) {
+				promise.reject();
+			} else {
+				req.token = req.token.replace(/^bearer /i, '');
 
-			// Decode the user information
-			var user;
-			try {
-				user = jwt.decode(req.token, secret);
+				// Decode the user information
+				var user;
+				try {
+					user = jwt.decode(req.token, secret);
 
-				// Check expiry date
-				var expiryDate = new Date(user.expires);
-				if (expiryDate <= new Date()) {
-					deferred.reject();
-				} else {
+					// Check expiry date
+					var expiryDate = new Date(user.expires);
+					if (expiryDate <= new Date()) {
+						promise.reject();
+					} else {
 
-					// Token still in date, get user by id
-					databaseSvc
-						.findOne({ _id: user.id })
-						.then(function (result) {
-							req.user = result.data;
-							deferred.resolve();
-						}, function () {
-							deferred.reject();
-						});
+						// Token still in date, get user by id
+						databaseSvc
+							.findOne({ _id: user.id })
+							.then(function (result) {
+								req.user = result.data;
+								promise.resolve();
+							}, function () {
+								promise.reject();
+							});
+					}
+				} catch (e) {
+					promise.reject();
 				}
-			} catch (e) {
-				deferred.reject();
 			}
-		}
-		return deferred.promise;
+		});
 	}
 
 	function isAuthenticated(req, res, next) {
@@ -108,100 +108,96 @@ module.exports = function (opts) {
 
 	// Check validity of verify token and set verified flag
 	function verifyEmail(req) {
-		var deferred = new Deferred();
-		databaseSvc
-			.findOne({ verifyToken: req.params.token })
-			.then(function (result) {
-				var user = result.data;
-				user.verified = true;
-				user.verifyToken = undefined;
-				user.save(function (err) {
-					if (err) {
-						deferred.badRequest(err);
-					} else {
-						deferred.success();
-					}
-				});
-			}, deferred.reject);
-
-		return deferred.promise;
+		return deferred(function (resolve, reject, promise) {
+			databaseSvc
+				.findOne({ verifyToken: req.params.token })
+				.then(function (result) {
+					var user = result.data;
+					user.verified = true;
+					user.verifyToken = undefined;
+					user.save(function (err) {
+						if (err) {
+							reject.badRequest(err);
+						} else {
+							resolve.success();
+						}
+					});
+				}, promise.reject);
+		});
 	}
 
 	// Generate forgotten password token, then send link in email
 	function forgotPassword(req) {
-		var deferred = new Deferred();
-		databaseSvc
-			.findOne({ email: req.body.email })
-			.then(function (result) {
-				var user = result.data;
-				user.forgotPasswordToken = uuid.v4();
-				user.forgotPasswordExpires = Date.now() + 3600000; // an hour from now
-				user.save(function (err) {
-					if (err) {
-						deferred.internalServerError(err);
-					} else {
-						// TODO: Login link email which user clicks to login
-						deferred.success();
-					}
-				});
-			}, deferred.reject);
-
-		return deferred.promise;
+		return deferred(function (resolve, reject, promise) {
+			databaseSvc
+				.findOne({ email: req.body.email })
+				.then(function (result) {
+					var user = result.data;
+					user.forgotPasswordToken = uuid.v4();
+					user.forgotPasswordExpires = Date.now() + 3600000; // an hour from now
+					user.save(function (err) {
+						if (err) {
+							reject.internalServerError(err);
+						} else {
+							// TODO: Login link email which user clicks to login
+							resolve.success();
+						}
+					});
+				}, promise.reject);
+		});
 	}
 
 	// Check validity of forgotten password token and set new password
 	function resetPassword(req) {
-		var deferred = new Deferred();
-		databaseSvc
-			.findOne({ forgotPasswordToken: req.body.token })
-			.then(function (result) {
-				var user = result.data;
-				if (Date.now() > user.forgotPasswordExpires) {
-					deferred.gone();
-				} else {
-					user.setPassword(req.body.password, function (err, user) {
-						if (err) {
-							deferred.badRequest(err);
-						} else {
-							user.forgotPasswordToken = undefined;
-							user.forgotPasswordExpires = undefined;
-							user.save(function (err) {
-								if (err) {
-									deferred.badRequest(err);
-								} else {
-									// TODO: Send password has changed notifcation email
-									deferred.success();
-								}
-							});
-						}
-					});
-				}
-			}, deferred.reject);
-
-		return deferred.promise;
+		return deferred(function (resolve, reject, promise) {
+			databaseSvc
+				.findOne({ forgotPasswordToken: req.body.token })
+				.then(function (result) {
+					var user = result.data;
+					if (Date.now() > user.forgotPasswordExpires) {
+						reject.gone();
+					} else {
+						user.setPassword(req.body.password, function (err, user) {
+							if (err) {
+								reject.badRequest(err);
+							} else {
+								user.forgotPasswordToken = undefined;
+								user.forgotPasswordExpires = undefined;
+								user.save(function (err) {
+									if (err) {
+										reject.badRequest(err);
+									} else {
+										// TODO: Send password has changed notifcation email
+										resolve.success();
+									}
+								});
+							}
+						});
+					}
+				}, promise.reject);
+		});
 	}
 
 	function changePassword(req) {
-		var deferred = new Deferred();
-		var user = req.user;
-		user.setPassword(req.body.password, function (err, user) {
-			if (err) {
-				deferred.badRequest(err);
-			} else {
-				user.forgotPasswordToken = undefined;
-				user.forgotPasswordExpires = undefined;
-				user.save(function (err) {
-					if (err) {
-						deferred.badRequest(err);
-					} else {
-						// TODO: Send password has changed notifcation email
-						deferred.success();
-					}
-				});
-			}
+		return deferred(function (resolve, reject) {
+			var user = req.user;
+			user.setPassword(req.body.password, function (err, user) {
+				if (err) {
+					reject.badRequest(err);
+				} else {
+					user.forgotPasswordToken = undefined;
+					user.forgotPasswordExpires = undefined;
+					user.save(function (err) {
+						if (err) {
+							reject.badRequest(err);
+						} else {
+							// TODO: Send password has changed notifcation email
+							resolve.success();
+						}
+					});
+				}
+			});
 		});
-
-		return deferred.promise;
 	}
 
 	function logout(req, res) {

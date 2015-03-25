@@ -1,71 +1,67 @@
 ﻿var _ = require('lodash');
-var Deferred = require('deferred-http-statuses');
+var deferred = require('deferred-http-statuses');
 
 module.exports = function (Model) {
 	'use strict';
 
 	function create(data) {
-		var deferred = new Deferred();
-		var model = new Model(data);
-		model.save(function (err, newModel) {
-			if (err) {
-				deferred.internalServerError(err);
-			} else {
-				deferred.success(newModel);
-			}
+		return deferred(function (resolve, reject) {
+			var model = new Model(data);
+			model.save(function (err, newModel) {
+				if (err) {
+					reject.internalServerError(err);
+				} else {
+					resolve.success(newModel);
+				}
+			});
 		});
-
-		return deferred.promise;
 	}
 
 	function update(data) {
-		var deferred = new Deferred();
-		svc.findOne({ _id: data._id })
-			.then(function (result) {
-				var model = result.data;
-				var tmp = _.merge(model.toJSON(), data);
-				_.extend(model, tmp);
-				model.save(function (err, updatedModel) {
-					if (err) {
-						deferred.internalServerError(err);
-					} else {
-						deferred.success(updatedModel);
-					}
+		return deferred(function (resolve, reject, promise) {
+			svc.findOne({ _id: data._id })
+				.then(function (result) {
+					var model = result.data;
+					var tmp = _.merge(model.toJSON(), data);
+					_.extend(model, tmp);
+					model.save(function (err, updatedModel) {
+						if (err) {
+							reject.internalServerError(err);
+						} else {
+							resolve.success(updatedModel);
+						}
+					});
+				}, function (result) {
+					promise.reject(result.status, result.data);
 				});
-			}, function (result) {
-				deferred.reject(result.status, result.data);
-			});
-
-		return deferred.promise;
+		});
 	}
 
 	function find(findOne, queryObject) {
-		var deferred = new Deferred();
-		Model.find(queryObject, function (err, models) {
-			if (err) {
-				deferred.internalServerError(err);
-			} else if (models.length === 0) {
-				deferred.notFound();
-			} else {
-				var result = findOne ? models[0] : models;
-				deferred.success(result);
-			}
+		return deferred(function (resolve, reject) {
+			Model.find(queryObject, function (err, models) {
+				if (err) {
+					reject.internalServerError(err);
+				} else if (models.length === 0) {
+					reject.notFound();
+				} else {
+					var result = findOne ? models[0] : models;
+					resolve.success(result);
+				}
+			});
 		});
-
-		return deferred.promise;
 	}
 
 	function remove(queryObject) {
-		var deferred = new Deferred();
-		Model.remove(queryObject, function (err) {
-			if (err) {
-				deferred.internalServerError(err);
-			} else {
-				deferred.noContent();
-			}
+		return deferred(function (resolve, reject) {
+			Model.remove(queryObject, function (err) {
+				if (err) {
+					reject.internalServerError(err);
+				} else {
+					resolve.noContent();
+				}
+			});
 		});
-
-		return deferred.promise;
 	}
 
 	var svc = {
