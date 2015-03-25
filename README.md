@@ -132,7 +132,16 @@ Checks to see if the request is already authenticated, and if so responds with a
 	Headers:
 	Authorization: "<authentication-token>"
 
+#### POST /logout
+Since the cookies are httpOnly to improve security you won't be able to remove them via JavaScript. Therefore call this end point to instruct the server to remove them.
+
+**Response:**
+
+	Cookies are removed
+
 ### Middleware
+
+#### hasAccess
 If you want to check if the current request has access, ie. they are authenticated, then you can use the `hasAccess` method which returns a promise.
 
     router.get('/access', function (req, res) {
@@ -144,6 +153,14 @@ If you want to check if the current request has access, ie. they are authenticat
           res.status(401).end();
         });
       });
+
+#### logout
+To logout call the logout method, it will simply remove the cookies
+
+    router.post('/logout', function (req, res) {
+      authSvc.logout(req, res);
+      res.status(200).end();
+    });
 
 ##### Technology Used
 - [NodeJS](http://nodejs.org/)
