@@ -28,16 +28,23 @@ module.exports = function (opts) {
 			.then(responses.standard(res), responses.standard(res));
 	}
 
+	function hasAccess(req, res) {
+		authSvc
+			.hasAccess(req, res)
+			.then(function () {
+				res.status(200).end();
+			}, function () {
+				res.status(401).end();
+			});
+	}
+
+	function logout(req, res) {
+		authSvc.logout(req, res);
+		res.status(200).end();
+	}
+
 	if (opts.router) {
-		opts.router.get('/access', function (req, res) {
-			authSvc
-				.hasAccess(req, res)
-				.then(function () {
-					res.status(200).end();
-				}, function () {
-					res.status(401).end();
-				});
-		});
+		opts.router.get('/access', hasAccess);
 		opts.router.post('/register', authSvc.register);
 		opts.router.post('/forgot', forgotPassword);
 		opts.router.post('/reset', resetPassword);
@@ -45,6 +52,7 @@ module.exports = function (opts) {
 		opts.router.post('/token', authSvc.authenticate);
 		opts.router.post('/token/extend', authSvc.isAuthenticated, authSvc.extendToken);
 		opts.router.put('/change', authSvc.isAuthenticated, changePassword);
+		opts.router.post('/logout', logout);
 	}
 
 	return {
@@ -56,6 +64,7 @@ module.exports = function (opts) {
 		resetPassword: authSvc.resetPassword,
 		changePassword: authSvc.changePassword,
 		verifyEmail: authSvc.verifyEmail,
-		extendToken: authSvc.extendToken
+		extendToken: authSvc.extendToken,
+		logout: authSvc.logout
 	};
 };

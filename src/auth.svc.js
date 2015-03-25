@@ -204,6 +204,14 @@ module.exports = function (opts) {
 		return deferred.promise;
 	}
 
+	function logout(req, res) {
+		if (activateCookie) {
+			// Remove the cookie
+			var cookies = new Cookies(req, res, cookiekKeys);
+			cookies.set('darklord', null, { signed: true });
+		}
+	}
+
 	function generateToken(req, res, user) {
 		// When to force a new manual login
 		var expiryDate = new Date();
@@ -223,8 +231,7 @@ module.exports = function (opts) {
 			var cookies = new Cookies(req, res, cookiekKeys);
 			cookies.set('darklord', token, {
 				expires: expiryDate,
-				signed: true,
-				httpOnly: false
+				signed: true
 			});
 		}
 
@@ -243,6 +250,7 @@ module.exports = function (opts) {
 		resetPassword: resetPassword,
 		changePassword: changePassword,
 		verifyEmail: verifyEmail,
-		extendToken: extendToken
+		extendToken: extendToken,
+		logout: logout
 	};
 };
