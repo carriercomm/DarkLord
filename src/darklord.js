@@ -29,6 +29,15 @@ module.exports = function (opts) {
 	}
 
 	if (opts.router) {
+		opts.router.get('/access', function (req, res) {
+			authSvc
+				.hasAccess(req, res)
+				.then(function () {
+					res.status(200).end();
+				}, function () {
+					res.status(401).end();
+				});
+		});
 		opts.router.post('/register', authSvc.register);
 		opts.router.post('/forgot', forgotPassword);
 		opts.router.post('/reset', resetPassword);
@@ -41,6 +50,7 @@ module.exports = function (opts) {
 	return {
 		register: authSvc.register,
 		authenticate: authSvc.authenticate,
+		hasAccess: authSvc.hasAccess,
 		isAuthenticated: authSvc.isAuthenticated,
 		forgotPassword: authSvc.forgotPassword,
 		resetPassword: authSvc.resetPassword,
