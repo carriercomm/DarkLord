@@ -53,7 +53,7 @@ module.exports = function (opts) {
 		var deferred = new Deferred();
 		// Get token from authorization header or cookie fallback
 		var cookies = new Cookies(req, res, cookiekKeys);
-		req.token = req.headers.authorization || cookies.get('darklord', { signed: true });
+		req.token = req.headers.authorization || cookies.get('darklord', { httpOnly: false, signed: true });
 
 		// If no token then not authenticated
 		if (!req.token) {
