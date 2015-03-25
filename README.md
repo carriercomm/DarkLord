@@ -135,15 +135,15 @@ Checks to see if the request is already authenticated, and if so responds with a
 ### Middleware
 If you want to check if the current request has access, ie. they are authenticated, then you can use the `hasAccess` method which returns a promise.
 
-    router.get('/profile', function () {
+    router.get('/access', function (req, res) {
       authSvc
-        .hasAccess()
+        .hasAccess(req, res)
         .then(function () {
-          // Authenticated
+          res.status(200).end();
         }, function () {
-          // Not authenticated
+          res.status(401).end();
         });
-    });
+      });
 
 ##### Technology Used
 - [NodeJS](http://nodejs.org/)
