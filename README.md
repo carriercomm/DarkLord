@@ -69,7 +69,6 @@ Generate an authentication token.
 
     {
       "token": "<authentication-token>",
-      "refresh": "<short-term-refresh-date>",
       "expires": "<long-term-expiry-date>"
     }
 
@@ -87,7 +86,6 @@ Create an account and generate an authentication token. Sets the verified flag t
 
     {
       "token": "<authentication-token>",
-      "refresh": "<short-term-refresh-date>",
       "expires": "<long-term-expiry-date>"
     }
 
@@ -134,6 +132,18 @@ Checks to see if the request is already authenticated, and if so responds with a
 	Headers:
 	Authorization: "<authentication-token>"
 
+### Middleware
+If you want to check if the current request has access, ie. they are authenticated, then you can use the `hasAccess` method which returns a promise.
+
+    router.get('/profile', function () {
+      authSvc
+        .hasAccess()
+        .then(function () {
+          // Authenticated
+        }, function () {
+          // Not authenticated
+        });
+    });
 
 ##### Technology Used
 - [NodeJS](http://nodejs.org/)
