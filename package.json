@@ -1,6 +1,6 @@
 {
   "name": "darklord",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "author": "Gregory Pratt <gregory.pratt@me.com> (http://grumpywizards.com)",
   "description": "Stateless JWT based authentication",
   "license": "MIT",
