@@ -162,6 +162,23 @@ To logout call the logout method, it will simply remove the cookies
       res.status(200).end();
     });
 
+### Events
+The following are events you can hook into for when certain actions happen, they all return the user
+
+    registered
+    authenticated
+    forgotpassword
+    resetpassword
+    changepassword
+    
+E.g.
+
+    var darklord = require('darklord')({ router: router });
+    
+    darklord.events.on('registered', function (user) {
+      ...
+    });
+
 ##### Technology Used
 - [NodeJS](http://nodejs.org/)
 - [PassportJS](http://passportjs.org/)

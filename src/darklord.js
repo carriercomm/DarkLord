@@ -56,6 +56,7 @@ module.exports = function (opts) {
 	}
 
 	return {
+		events: authSvc.events,
 		register: authSvc.register,
 		authenticate: authSvc.authenticate,
 		hasAccess: authSvc.hasAccess,

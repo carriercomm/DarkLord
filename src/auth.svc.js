@@ -3,6 +3,7 @@ var passport = require('passport');
 var jwt = require('jwt-simple');
 var uuid = require('node-uuid');
 var deferred = require('deferred-http-statuses');
+var EventEmitter = require("events").EventEmitter;
 
 module.exports = function (opts) {
 	'use strict';
@@ -21,17 +22,19 @@ module.exports = function (opts) {
 	passport.serializeUser(User.serializeUser());
 	passport.deserializeUser(User.deserializeUser());
 
+	var emitter = new EventEmitter();
+
 	function register(req, res, next) {
 		User.register({
 			email: req.body.email,
 			verifyToken: uuid.v4()
-		}, req.body.password, function (err) {
+		}, req.body.password, function (err, user) {
 			console.log('ok', err);
 			if (err) {
 				res.status(400).send({ error: err });
 			} else {
 				// User created
-				// TODO: send verification email
+				emitter.emit('registered', user);
 				authenticate(req, res, next);
 			}
 		});
@@ -44,6 +47,7 @@ module.exports = function (opts) {
 			} else if (!user) {
 				res.status(401).end();
 			} else {
+				emitter.emit('authenticated', user);
 				res.status(200).send(generateToken(req, res, user));
 			}
 		})(req, res, next);
@@ -139,7 +143,7 @@ module.exports = function (opts) {
 						if (err) {
 							reject.internalServerError(err);
 						} else {
-							// TODO: Login link email which user clicks to login
+							emitter.emit('forgotpassword', user);
 							resolve.success();
 						}
 					});
@@ -167,7 +171,7 @@ module.exports = function (opts) {
 									if (err) {
 										reject.badRequest(err);
 									} else {
-										// TODO: Send password has changed notifcation email
+										emitter.emit('resetpassword', user);
 										resolve.success();
 									}
 								});
@@ -191,7 +195,7 @@ module.exports = function (opts) {
 						if (err) {
 							reject.badRequest(err);
 						} else {
-							// TODO: Send password has changed notifcation email
+							emitter.emit('changepassword', user);
 							resolve.success();
 						}
 					});
@@ -238,6 +242,7 @@ module.exports = function (opts) {
 	}
 
 	return {
+		events: emitter,
 		register: register,
 		authenticate: authenticate,
 		hasAccess: hasAccess,
