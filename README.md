@@ -182,6 +182,8 @@ The following are events you can hook into for when certain actions happen, they
     forgotpassword
     resetpassword
     changepassword
+    closeaccount
+    accountclosed
     
 E.g.
 
