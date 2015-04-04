@@ -47,7 +47,9 @@ This is the simplest way of getting DarkLord up and running.
     resetPassword,
     changePassword,
     verifyEmail,
-    extendToken
+    extendToken,
+    closeAccount,
+    verifyClosure
 
 If however you do supply DarkLord with a router then you'll get the following end points for free.
 
@@ -73,7 +75,7 @@ Generate an authentication token.
     }
 
 #### POST /register
-Create an account and generate an authentication token. Sets the verified flag to false and creates a verified token to email to the user.
+Create an account and generate an authentication token. Sets the verified flag to false and creates a verified token
 
 **Request:**
 
@@ -102,7 +104,7 @@ Change the password on the account.
 		Authorization: "<authentication-token>"
 
 #### POST /forgot
-Creates a forgot password token and emails the user the link to reset.
+Creates a forgot password token that can be emailed to the user as a link to reset.
 
 **Request:**
 
@@ -121,8 +123,7 @@ Accepts a token and a password, the server then update the account password
     }
 
 #### GET /verify/:token
-Accepts a token (sent to the user's email address), then sets the verified flag on the user to true and removes the verify token
-
+Accepts a token that can be emailed to the user, then sets the verified flag on the user to true and removes the verify token
 
 #### POST /token/extend
 Checks to see if the request is already authenticated, and if so responds with a new auth token that has an extended expiry date
@@ -131,6 +132,17 @@ Checks to see if the request is already authenticated, and if so responds with a
 
 	Headers:
 	Authorization: "<authentication-token>"
+
+#### POST /close
+Request account clousre. Sets the closure verification token and expiry date
+
+**Request:**
+
+	Headers:
+	Authorization: "<authentication-token>"
+
+#### GET /close/:token
+Accepts a token, deletes the users account from the database
 
 #### POST /logout
 Since the cookies are httpOnly to improve security you won't be able to remove them via JavaScript. Therefore call this end point to instruct the server to remove them.

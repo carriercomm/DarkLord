@@ -113,72 +113,84 @@ module.exports = function (opts) {
 	// Check validity of verify token and set verified flag
 	function verifyEmail(req) {
 		return deferred(function (resolve, reject, promise) {
-			databaseSvc
-				.findOne({ verifyToken: req.params.token })
-				.then(function (result) {
-					var user = result.data;
-					user.verified = true;
-					user.verifyToken = undefined;
-					user.save(function (err) {
-						if (err) {
-							reject.badRequest(err);
-						} else {
-							resolve.success();
-						}
-					});
-				}, promise.reject);
+			if (req.params.token) {
+				databaseSvc
+					.findOne({ verifyToken: req.params.token })
+					.then(function (result) {
+						var user = result.data;
+						user.verified = true;
+						user.verifyToken = undefined;
+						user.save(function (err) {
+							if (err) {
+								reject.badRequest(err);
+							} else {
+								resolve.success();
+							}
+						});
+					}, promise.reject);
+			} else {
+				reject.badRequest();
+			}
 		});
 	}
 
 	// Generate forgotten password token, then send link in email
 	function forgotPassword(req) {
 		return deferred(function (resolve, reject, promise) {
-			databaseSvc
-				.findOne({ email: req.body.email })
-				.then(function (result) {
-					var user = result.data;
-					user.forgotPasswordToken = uuid.v4();
-					user.forgotPasswordExpires = Date.now() + 3600000; // an hour from now
-					user.save(function (err) {
-						if (err) {
-							reject.internalServerError(err);
-						} else {
-							emitter.emit('forgotpassword', user);
-							resolve.success();
-						}
-					});
-				}, promise.reject);
+			if (req.body.email) {
+				databaseSvc
+					.findOne({ email: req.body.email })
+					.then(function (result) {
+						var user = result.data;
+						user.forgotPasswordToken = uuid.v4();
+						user.forgotPasswordExpires = Date.now() + 3600000; // an hour from now
+						user.save(function (err) {
+							if (err) {
+								reject.internalServerError(err);
+							} else {
+								emitter.emit('forgotpassword', user);
+								resolve.success();
+							}
+						});
+					}, promise.reject);
+			} else {
+				reject.badRequest();
+			}
 		});
 	}
 
 	// Check validity of forgotten password token and set new password
 	function resetPassword(req) {
 		return deferred(function (resolve, reject, promise) {
-			databaseSvc
-				.findOne({ forgotPasswordToken: req.body.token })
-				.then(function (result) {
-					var user = result.data;
-					if (Date.now() > user.forgotPasswordExpires) {
-						reject.gone();
-					} else {
-						user.setPassword(req.body.password, function (err, user) {
-							if (err) {
-								reject.badRequest(err);
-							} else {
-								user.forgotPasswordToken = undefined;
-								user.forgotPasswordExpires = undefined;
-								user.save(function (err) {
-									if (err) {
-										reject.badRequest(err);
-									} else {
-										emitter.emit('resetpassword', user);
-										resolve.success();
-									}
-								});
-							}
-						});
-					}
-				}, promise.reject);
+			if (req.body.token) {
+				databaseSvc
+					.findOne({ forgotPasswordToken: req.body.token })
+					.then(function (result) {
+						var user = result.data;
+						if (Date.now() > user.forgotPasswordExpires) {
+							reject.gone();
+						} else {
+							user.setPassword(req.body.password, function (err, user) {
+								if (err) {
+									reject.badRequest(err);
+								} else {
+									user.forgotPasswordToken = undefined;
+									user.forgotPasswordExpires = undefined;
+									user.save(function (err) {
+										if (err) {
+											reject.badRequest(err);
+										} else {
+											emitter.emit('resetpassword', user);
+											resolve.success();
+										}
+									});
+								}
+							});
+						}
+					}, promise.reject);
+			} else {
+				reject.badRequest();
+			}
 		});
 	}
 
@@ -210,6 +222,55 @@ module.exports = function (opts) {
 			var cookies = new Cookies(req, res, cookiekKeys);
 			cookies.set('darklord', null, { signed: true });
 		}
+	}
+
+	// Generate close account token, then send link in email
+	function close(req) {
+		return deferred(function (resolve, reject, promise) {
+			databaseSvc
+				.findOne({ _id: req.user.id })
+				.then(function (result) {
+					var user = result.data;
+					user.closeAccountToken = uuid.v4();
+					user.closeAccountExpires = Date.now() + 3600000; // an hour from now
+					user.save(function (err) {
+						if (err) {
+							reject.internalServerError(err);
+						} else {
+							emitter.emit('closeaccount', user);
+							resolve.success();
+						}
+					});
+				}, promise.reject);
+		});
+	}
+
+	// Check validity of forgotten password token and set new password
+	function confirmClose(req) {
+		return deferred(function (resolve, reject, promise) {
+			if (req.params.token) {
+				databaseSvc
+					.findOne({ closeAccountToken: req.params.token })
+					.then(function (result) {
+						var user = result.data;
+						if (Date.now() > user.closeAccountExpires) {
+							reject.gone();
+						} else {
+							// remove user
+							user.remove(function (err) {
+								if (err) {
+									reject.badRequest(err);
+								} else {
+									emitter.emit('accountclosed', user);
+									resolve.success();
+								}
+							});
+						}
+					}, promise.reject);
+			} else {
+				reject.badRequest();
+			}
+		});
 	}
 
 	function generateToken(req, res, user) {
@@ -252,6 +313,8 @@ module.exports = function (opts) {
 		changePassword: changePassword,
 		verifyEmail: verifyEmail,
 		extendToken: extendToken,
+		close: close,
+		confirmClose: confirmClose,
 		logout: logout
 	};
 };

@@ -28,6 +28,18 @@ module.exports = function (opts) {
 			.then(responses.standard(res), responses.standard(res));
 	}
 
+	function close(req, res) {
+		authSvc
+			.close(req)
+			.then(responses.standard(res), responses.standard(res));
+	}
+
+	function confirmClose(req, res) {
+		authSvc
+			.confirmClose(req)
+			.then(responses.standard(res), responses.standard(res));
+	}
+
 	function hasAccess(req, res) {
 		authSvc
 			.hasAccess(req, res)
@@ -52,6 +64,8 @@ module.exports = function (opts) {
 		opts.router.post('/token', authSvc.authenticate);
 		opts.router.post('/token/extend', authSvc.isAuthenticated, authSvc.extendToken);
 		opts.router.put('/change', authSvc.isAuthenticated, changePassword);
+		opts.router.post('/close', authSvc.isAuthenticated, close);
+		opts.router.get('/close/:token', confirmClose);
 		opts.router.post('/logout', logout);
 	}
 
@@ -66,6 +80,8 @@ module.exports = function (opts) {
 		changePassword: authSvc.changePassword,
 		verifyEmail: authSvc.verifyEmail,
 		extendToken: authSvc.extendToken,
+		close: authSvc.close,
+		confirmClose: authSvc.confirmClose,
 		logout: authSvc.logout
 	};
 };

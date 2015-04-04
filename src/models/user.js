@@ -10,7 +10,9 @@ var userSchema = new Schema({
 	verified: { type: Boolean, default: false },
 	verifyToken: String,
 	forgotPasswordToken: String,
-	forgotPasswordExpires: Date
+	forgotPasswordExpires: Date,
+	closeAccountToken: String,
+	closeAccountExpires: Date
 });
 
 userSchema.plugin(passportLocalMongoose, { usernameField: 'email' });
