@@ -1,6 +1,6 @@
 var Cookies = require('cookies');
 var passport = require('passport');
-var jwt = require('jwt-simple');
+var jwt = require('jsonwebtoken');
 var uuid = require('node-uuid');
 var deferred = require('deferred-http-statuses');
 var EventEmitter = require("events").EventEmitter;
@@ -66,26 +66,22 @@ module.exports = function (opts) {
 				req.token = req.token.replace(/^bearer /i, '');
 
 				// Decode the user information
-				var user;
 				try {
-					user = jwt.decode(req.token, secret);
-
-					// Check expiry date
-					var expiryDate = new Date(user.expires);
-					if (expiryDate <= new Date()) {
-						promise.reject();
-					} else {
-
-						// Token still in date, get user by id
-						databaseSvc
-							.findOne({ _id: user.id })
-							.then(function (result) {
-								req.user = result.data;
-								promise.resolve();
-							}, function () {
-								promise.reject();
-							});
-					}
+					jwt.verify(req.token, secret, { algorithms: ['HS512'] }, function (err, user) {
+						if (err) {
+							promise.reject();
+						} else {
+							// Token still in date, get user by id
+							databaseSvc
+								.findOne({ _id: user.id })
+								.then(function (result) {
+									req.user = result.data;
+									promise.resolve();
+								}, function () {
+									promise.reject();
+								});
+						}
+					});
 				} catch (e) {
 					promise.reject();
 				}
@@ -279,13 +275,15 @@ module.exports = function (opts) {
 		expiryDate.setDate(expiryDate.getDate() + 5);
 
 		// Encode the user information
-		var token = jwt.encode({
+		var token = jwt.sign({
 			id: user._id,
 			email: user.email,
 			verified: user.verified,
-			active: user.active,
-			expires: expiryDate
-		}, secret);
+			active: user.active
+		}, secret, {
+			algorithm: 'HS512',
+			expiresInMinutes: 7200
+		});
 
 		if (activateCookie) {
 			// Store the token in a cookie
@@ -298,7 +296,7 @@ module.exports = function (opts) {
 
 		return {
 			token: token,
-			expiryDate: expiryDate
+			expiresInMinutes: 7200
 		};
 	}
 
