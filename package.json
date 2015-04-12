@@ -1,6 +1,6 @@
 {
   "name": "darklord",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "author": "Gregory Pratt <gregory.pratt@me.com> (http://grumpywizards.com)",
   "description": "Stateless JWT based authentication",
   "license": "MIT",
@@ -24,7 +24,7 @@
     "cookies": "~0.5.0",
     "deferred-http-statuses": "~2.0.0",
     "express": "~4.8.5",
-    "jsonwebtoken": "~4.2.2",
+    "jsonwebtoken": "~5.0.0",
     "keygrip": "~1.0.1",
     "lodash": "~2.4.1",
     "mongoose": "~3.8.18",

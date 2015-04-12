@@ -71,7 +71,7 @@ Generate an authentication token.
 
     {
       "token": "<authentication-token>",
-      "expires": "<long-term-expiry-date>"
+      "expiresInMinutes": "<number-of-minutes-of-validity>"
     }
 
 #### POST /register
@@ -88,7 +88,7 @@ Create an account and generate an authentication token. Sets the verified flag t
 
     {
       "token": "<authentication-token>",
-      "expires": "<long-term-expiry-date>"
+      "expiresInMinutes": "<number-of-minutes-of-validity>"
     }
 
 #### PUT /change
@@ -198,6 +198,6 @@ E.g.
 - [PassportJS](http://passportjs.org/)
 - [MongoDB](http://www.mongodb.org/)
 - [Mongoose](http://mongoosejs.com/)
-- [JWT Simple](https://www.npmjs.org/package/jwt-simple)
+- [JSONWebToken](https://www.npmjs.com/package/jsonwebtoken)
 - [Cookies](https://www.npmjs.com/package/cookies)
 - [KeyGrip](https://www.npmjs.com/package/keygrip)
