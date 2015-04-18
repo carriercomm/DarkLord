@@ -26,7 +26,12 @@ module.exports = function (opts) {
 
 	function register(req, res, next) {
 		if (opts.passwordValidator && !opts.passwordValidator.test(req.body.password)) {
-			res.status(400).end();
+			res.status(400).send({
+				error: {
+					name: 'InvalidPasswordError',
+					message: 'The password does not meet the configured validation'
+				}
+			});
 		} else {
 			User.register({
 				email: req.body.email,
