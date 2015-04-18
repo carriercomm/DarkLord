@@ -18,6 +18,7 @@ This is the simplest way of getting DarkLord up and running.
       secret: <secret string>,
       cookie: <turn on token cookie>,
       user: <passport based user model>,
+      passwordValidator: <regex condition>
       databaseSvc: <database logic controller>,
       router: <express router>
     });
@@ -27,6 +28,8 @@ This is the simplest way of getting DarkLord up and running.
 **cookie** (*optional*) - turn token cookie on. The token will be stored in a signed cookie based on your *secret*. Useful if you want to use DarkLord for normal webpages as well as APIs.
 
 **user** (*optional*) - you can setup your own passport initialised User model, the default one is wrapped up as a passport mongoose model
+
+**passwordValidator** (*optional*) - use a Regular Expression to password validity e.g. `/^.{6,}$/` for minimum length of 6
 
 **databaseSvc** (*optional*) - if you are building your own User model and you don't want to use Mongo as a database then you probably already have a database logic layer. That's cool, you can provide DarkLord a database service that has the following interface where ***each method must return a promise***.:
 

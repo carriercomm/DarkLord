@@ -25,19 +25,22 @@ module.exports = function (opts) {
 	var emitter = new EventEmitter();
 
 	function register(req, res, next) {
-		User.register({
-			email: req.body.email,
-			verifyToken: uuid.v4()
-		}, req.body.password, function (err, user) {
-			console.log('ok', err);
-			if (err) {
-				res.status(400).send({ error: err });
-			} else {
-				// User created
-				emitter.emit('registered', user);
-				authenticate(req, res, next);
-			}
-		});
+		if (opts.passwordValidator && !opts.passwordValidator.test(req.body.password)) {
+			res.status(400).end();
+		} else {
+			User.register({
+				email: req.body.email,
+				verifyToken: uuid.v4()
+			}, req.body.password, function (err, user) {
+				if (err) {
+					res.status(400).send({ error: err });
+				} else {
+					// User created
+					emitter.emit('registered', user);
+					authenticate(req, res, next);
+				}
+			});
+		}
 	}
 
 	function authenticate(req, res, next) {
