@@ -174,22 +174,31 @@ module.exports = function (opts) {
 						if (Date.now() > user.forgotPasswordExpires) {
 							reject.gone();
 						} else {
-							user.setPassword(req.body.password, function (err, user) {
-								if (err) {
-									reject.badRequest(err);
-								} else {
-									user.forgotPasswordToken = undefined;
-									user.forgotPasswordExpires = undefined;
-									user.save(function (err) {
-										if (err) {
-											reject.badRequest(err);
-										} else {
-											emitter.emit('resetpassword', user);
-											resolve.success();
-										}
-									});
-								}
-							});
+							if (opts.passwordValidator && !opts.passwordValidator.test(req.body.password)) {
+								reject.badRequest({
+									error: {
+										name: 'InvalidPasswordError',
+										message: 'The password does not meet the configured validation'
+									}
+								});
+							} else {
+								user.setPassword(req.body.password, function (err, user) {
+									if (err) {
+										reject.badRequest(err);
+									} else {
+										user.forgotPasswordToken = undefined;
+										user.forgotPasswordExpires = undefined;
+										user.save(function (err) {
+											if (err) {
+												reject.badRequest(err);
+											} else {
+												emitter.emit('resetpassword', user);
+												resolve.success();
+											}
+										});
+									}
+								});
+							}
 						}
 					}, promise.reject);
 			} else {
@@ -201,22 +210,31 @@ module.exports = function (opts) {
 	function changePassword(req) {
 		return deferred(function (resolve, reject) {
 			var user = req.user;
-			user.setPassword(req.body.password, function (err, user) {
-				if (err) {
-					reject.badRequest(err);
-				} else {
-					user.forgotPasswordToken = undefined;
-					user.forgotPasswordExpires = undefined;
-					user.save(function (err) {
-						if (err) {
-							reject.badRequest(err);
-						} else {
-							emitter.emit('changepassword', user);
-							resolve.success();
-						}
-					});
-				}
-			});
+			if (opts.passwordValidator && !opts.passwordValidator.test(req.body.password)) {
+				reject.badRequest({
+					error: {
+						name: 'InvalidPasswordError',
+						message: 'The password does not meet the configured validation'
+					}
+				});
+			} else {
+				user.setPassword(req.body.password, function (err, user) {
+					if (err) {
+						reject.badRequest(err);
+					} else {
+						user.forgotPasswordToken = undefined;
+						user.forgotPasswordExpires = undefined;
+						user.save(function (err) {
+							if (err) {
+								reject.badRequest(err);
+							} else {
+								emitter.emit('changepassword', user);
+								resolve.success();
+							}
+						});
+					}
+				});
+			}
 		});
 	}
 
